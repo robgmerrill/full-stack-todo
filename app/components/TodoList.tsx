@@ -2,14 +2,20 @@
 
 import { useEffect, useState } from "react";
 
+type Todo = {
+  id: string;
+  title: string;
+  completed: boolean;
+};
+
 export default function TodoList() {
-  const [todos, setTodos] = useState([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [title, setTitle] = useState("");
 
   useEffect(() => {
     fetch("/api/todos")
       .then((res) => res.json())
-      .then(setTodos);
+      .then((data: Todo[]) => setTodos(data));
   }, []);
 
   const addTodo = async () => {
@@ -20,7 +26,8 @@ export default function TodoList() {
     });
 
     if (res.ok) {
-      setTodos([...todos, await res.json()]);
+      const newTodo: Todo = await res.json(); // Explicitly type response
+      setTodos([...todos, newTodo]); // Now TypeScript understands the type
       setTitle("");
     }
   };
@@ -34,7 +41,7 @@ export default function TodoList() {
       />
       <button onClick={addTodo}>Add</button>
       <ul>
-        {todos.map((todo: any) => (
+        {todos.map((todo) => (
           <li key={todo.id}>{todo.title}</li>
         ))}
       </ul>
